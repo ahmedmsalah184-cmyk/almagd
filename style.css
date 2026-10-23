@@ -4,6 +4,7 @@
   --gold:#f2b705; --gold-d:#c98200; --amber:#e08000; --cream:#fff6dc;
   --bg1:#f3fafc; --bg2:#fff8e6; --card:#ffffff;
   --fg:#12303f; --muted:#4f6b79; --line:#cfe3ea; --ok:#13804a; --bad:#b4531a;
+  --ad:"Lalezar","Cairo","Segoe UI",Tahoma,Arial,sans-serif;
   --font:"Cairo","Segoe UI",Tahoma,Arial,sans-serif;
   /* نص ثلاثي الأبعاد: طبقات ظل متتالية */
   --t3d-dark:0 1px 0 #1d7a9f,0 2px 0 #176a8a,0 3px 0 #115a76,0 4px 0 #0b4a63,0 5px 6px rgba(8,58,82,.35);
@@ -99,3 +100,15 @@ select:focus,input:focus,button:focus-visible{outline:3px solid var(--gold);outl
   transform:translateY(3px);
   box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 2px 0 var(--teal-d),0 4px 8px rgba(8,58,82,.35)}
 .tabs button.on::after{content:"";display:block;height:3px;width:34px;margin:2px auto -2px;border-radius:3px;background:var(--gold);box-shadow:0 1px 0 var(--gold-d)}
+
+/* ===== خط إعلاني (Lalezar) للأسماء والأرقام المهمة ===== */
+.top h1,.top p,label,select,input[type=search],.hit .m,.row strong,.row .price,.card h2{font-family:var(--ad);font-weight:400;letter-spacing:.3px}
+.top h1{font-size:2.1rem;line-height:1.1}
+.top p{font-size:1.15rem;letter-spacing:.8px}
+label{font-size:1.25rem}
+select,input[type=search]{font-size:1.3rem}
+.hit .m{font-size:2rem;line-height:1.2}
+.row strong{font-size:1.35rem;color:var(--amber);text-shadow:0 1px 0 #f5b84a,0 2px 0 #c97800,0 3px 0 #9a5a00,0 4px 5px rgba(0,0,0,.3)}
+.row .price{font-size:2.1rem}
+.card h2{font-size:1.35rem}
+.logo{width:64px;height:64px;box-shadow:0 3px 0 #000,0 6px 12px rgba(0,0,0,.55),0 0 0 3px rgba(242,183,5,.35)}
