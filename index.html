@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>مكتب المجد لملابس الأطفال</title>
+<meta name="theme-color" content="#0f5a78">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="المجد">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <img src="icons/logo.png" alt="شعار مكتب المجد" class="logo" width="48" height="48">
+  <div>
+    <h1>مكتب المجد</h1>
+    <p>لملابس الأطفال</p>
+  </div>
+</header>
+
+<main>
+  <!-- الصفحة الرئيسية: البحث -->
+  <section id="view-search" class="view">
+    <label for="factory">المصنع</label>
+    <select id="factory"></select>
+
+    <label for="q">رقم الموديل</label>
+    <input id="q" type="search" autocomplete="off" autocapitalize="characters" enterkeyhint="search" placeholder="اكتب رقم الموديل">
+
+    <div id="info" class="info"></div>
+    <div id="results" aria-live="polite"></div>
+  </section>
+
+  <!-- صفحة الإعدادات -->
+  <section id="view-settings" class="view" hidden>
+    <div class="card">
+      <h2>بيانات الشيت</h2>
+      <p id="stat" class="muted"></p>
+    </div>
+
+    <div class="card">
+      <h2>تحديث من ملف إكسيل</h2>
+      <p class="muted">اختار ملف إكسيل (xlsx) فيه الأعمدة: اسم المصنع، رقم الموديل، السعر.</p>
+      <label class="btn" for="file">اختيار ملف إكسيل</label>
+      <input id="file" type="file" accept=".xlsx,.xls,.csv" hidden>
+    </div>
+
+    <div class="card">
+      <h2>تحديث من GitHub</h2>
+      <p class="muted">لو رفعت ملف <b>data.xlsx</b> جديد على GitHub مع التطبيق، اضغط هنا يتحمّل ويتحدث.</p>
+      <button id="fromRepo" class="btn">تحديث من data.xlsx</button>
+    </div>
+
+    <div class="card">
+      <h2>أدوات</h2>
+      <div class="btns">
+        <button id="checkApp" class="btn ghost">تحديث نسخة التطبيق</button>
+        <button id="clear" class="btn danger">مسح البيانات</button>
+      </div>
+      <p id="clearAsk" class="muted" hidden>اضغط "مسح البيانات" مرة تانية للتأكيد.</p>
+    </div>
+
+    <div id="msg" class="toast" role="status" hidden></div>
+  </section>
+</main>
+
+<nav class="tabs">
+  <button data-view="search" class="on">بحث</button>
+  <button data-view="settings">الإعدادات</button>
+</nav>
+
+<script src="lib/xlsx.mini.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

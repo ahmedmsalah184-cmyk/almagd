@@ -1,0 +1,101 @@
+/* ألوان مأخوذة من اللوجو: أزرق مخضر عميق + ذهبي + كريمي */
+:root{
+  --teal:#0f5a78; --teal-d:#083a52; --teal-l:#2f86a8;
+  --gold:#f2b705; --gold-d:#c98200; --amber:#e08000; --cream:#fff6dc;
+  --bg1:#f3fafc; --bg2:#fff8e6; --card:#ffffff;
+  --fg:#12303f; --muted:#4f6b79; --line:#cfe3ea; --ok:#13804a; --bad:#b4531a;
+  --font:"Cairo","Segoe UI",Tahoma,Arial,sans-serif;
+  /* نص ثلاثي الأبعاد: طبقات ظل متتالية */
+  --t3d-dark:0 1px 0 #1d7a9f,0 2px 0 #176a8a,0 3px 0 #115a76,0 4px 0 #0b4a63,0 5px 6px rgba(8,58,82,.35);
+  --t3d-gold:0 1px 0 #f7c93a,0 2px 0 #e5a900,0 3px 0 #c98200,0 4px 0 #a86a00,0 5px 6px rgba(0,0,0,.35);
+  --t3d-soft:0 1px 0 #fff,0 2px 1px rgba(8,58,82,.22);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%) fixed;color:var(--fg);
+  font:16px/1.6 var(--font);text-shadow:var(--t3d-soft);
+  padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+
+/* ===== الهيدر ===== */
+.top{background:linear-gradient(160deg,var(--teal-l),var(--teal) 45%,var(--teal-d));color:#fff;
+  display:flex;align-items:center;gap:12px;
+  padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 14px max(16px,env(safe-area-inset-left,0px));
+  border-bottom:5px solid var(--gold);box-shadow:0 6px 0 var(--gold-d),0 10px 14px rgba(8,58,82,.3)}
+.top h1{margin:0;font-size:1.45rem;line-height:1.2;font-weight:900;color:#fff;
+  text-shadow:0 1px 0 #cfe9f3,0 2px 0 #8cc3d9,0 3px 0 #2f86a8,0 4px 0 #0b4a63,0 5px 0 #083a52,0 7px 8px rgba(0,0,0,.45)}
+.top p{margin:0;font-size:.95rem;font-weight:800;color:var(--gold);text-shadow:var(--t3d-gold)}
+.logo{border-radius:50%;box-shadow:0 3px 0 #000,0 6px 10px rgba(0,0,0,.5);border:2px solid var(--gold)}
+
+main{max-width:560px;margin:0 auto;padding:22px max(16px,env(safe-area-inset-left,0px)) 0 max(16px,env(safe-area-inset-right,0px))}
+.view{display:grid;gap:8px}
+.view[hidden]{display:none}
+label{font-weight:900;font-size:1rem;margin-top:6px;color:var(--teal-d);text-shadow:var(--t3d-dark)}
+
+/* ===== الحقول: محفورة للداخل ===== */
+select,input[type=search]{width:100%;padding:14px;font:inherit;font-size:1.1rem;font-weight:700;color:var(--fg);
+  background-color:#fff;border:2px solid var(--line);border-radius:14px;text-shadow:none;
+  box-shadow:inset 0 3px 6px rgba(8,58,82,.18),0 2px 0 #fff,0 4px 0 var(--line)}
+input[type=search]{direction:ltr;text-align:right}
+select{appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M1 1l7 7 7-7' fill='none' stroke='%230f5a78' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-position:left 14px center;background-repeat:no-repeat;padding-left:42px}
+select:focus,input:focus,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+.info{color:var(--muted);font-size:.85rem;min-height:1.2em}
+
+/* ===== النتائج: كروت بارزة ===== */
+#results{display:grid;gap:12px}
+.hit{background:linear-gradient(180deg,#fff,#f4fbfd);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:grid;gap:4px;
+  box-shadow:0 1px 0 #fff inset,0 4px 0 #b9d6e0,0 8px 14px rgba(8,58,82,.15)}
+.hit .m{font-size:1.4rem;font-weight:900;direction:ltr;text-align:right;color:var(--teal);text-shadow:var(--t3d-dark)}
+.hit mark{background:var(--gold);color:#3a2600;border-radius:4px;padding:0 2px;text-shadow:none}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.row span{color:var(--muted);font-size:.9rem;font-weight:700}
+.row .price{font-size:1.8rem;font-weight:900;color:var(--ok);font-variant-numeric:tabular-nums;
+  text-shadow:0 1px 0 #3fb27a,0 2px 0 #1f9a5f,0 3px 0 #13804a,0 4px 0 #0c6639,0 5px 6px rgba(0,0,0,.3)}
+.empty{padding:16px;border:2px dashed var(--teal-l);border-radius:14px;color:var(--muted);text-align:center;font-weight:700;background:rgba(255,255,255,.6)}
+.empty.bad{color:var(--bad);border-color:var(--bad)}
+
+/* ===== كروت الإعدادات ===== */
+.card{background:linear-gradient(180deg,#fff,#f4fbfd);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:grid;gap:8px;
+  box-shadow:0 1px 0 #fff inset,0 4px 0 #b9d6e0,0 8px 14px rgba(8,58,82,.12)}
+.card h2{margin:0;font-size:1.15rem;font-weight:900;color:var(--teal);text-shadow:var(--t3d-dark)}
+.muted{color:var(--muted);margin:0;font-size:.9rem;font-weight:600}
+
+/* ===== أزرار ثلاثية الأبعاد ===== */
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-block;text-align:center;padding:12px 20px;border-radius:12px;border:0;
+  background:linear-gradient(180deg,var(--teal-l),var(--teal));color:#fff;
+  font:inherit;font-weight:900;cursor:pointer;
+  text-shadow:0 1px 0 #0b4a63,0 2px 0 #083a52,0 3px 4px rgba(0,0,0,.4);
+  box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 5px 0 var(--teal-d),0 9px 12px rgba(8,58,82,.35);
+  transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 1px 0 var(--teal-d),0 3px 5px rgba(8,58,82,.3)}
+.btn.ghost{background:linear-gradient(180deg,#fffdf4,var(--cream));color:var(--teal-d);
+  text-shadow:var(--t3d-soft);box-shadow:0 0 0 2px var(--gold) inset,0 5px 0 var(--gold-d),0 9px 12px rgba(150,100,0,.3)}
+.btn.ghost:active{box-shadow:0 0 0 2px var(--gold) inset,0 1px 0 var(--gold-d),0 3px 5px rgba(150,100,0,.3)}
+.btn.danger{background:linear-gradient(180deg,#e0752f,var(--bad));
+  box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 5px 0 #7d3a10,0 9px 12px rgba(125,58,16,.35);
+  text-shadow:0 1px 0 #8a3f10,0 2px 0 #6a300c,0 3px 4px rgba(0,0,0,.4)}
+.btn.danger:active{box-shadow:0 1px 0 #7d3a10,0 3px 5px rgba(125,58,16,.3)}
+
+.toast{position:sticky;bottom:calc(92px + env(safe-area-inset-bottom,0px));background:var(--teal-d);color:#fff;
+  padding:12px 16px;border-radius:12px;border-inline-start:6px solid var(--gold);font-weight:700;
+  box-shadow:0 4px 0 #04202f,0 8px 14px rgba(0,0,0,.3)}
+.toast[hidden]{display:none}
+
+/* ===== التابات (القائمة السفلية) ===== */
+.tabs{position:fixed;inset:auto 0 0 0;display:grid;grid-template-columns:1fr 1fr;
+  background:linear-gradient(180deg,#fffdf4,#ffeeba);
+  border-top:3px solid var(--gold);box-shadow:0 -6px 14px rgba(8,58,82,.15);
+  padding:10px max(12px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-right,0px));gap:10px}
+.tabs button{padding:12px;font:inherit;font-weight:900;font-size:1.05rem;border:0;border-radius:14px;cursor:pointer;
+  background:linear-gradient(180deg,#fff,#e8f3f7);color:var(--teal-d);
+  text-shadow:var(--t3d-soft);
+  box-shadow:0 1px 0 #fff inset,0 5px 0 #a9c7d3,0 8px 10px rgba(8,58,82,.2);
+  transition:transform .08s,box-shadow .08s}
+.tabs button.on{background:linear-gradient(180deg,var(--teal-l),var(--teal) 55%,var(--teal-d));color:#fff;
+  text-shadow:0 1px 0 #0b4a63,0 2px 0 #083a52,0 3px 4px rgba(0,0,0,.45);
+  transform:translateY(3px);
+  box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 2px 0 var(--teal-d),0 4px 8px rgba(8,58,82,.35)}
+.tabs button.on::after{content:"";display:block;height:3px;width:34px;margin:2px auto -2px;border-radius:3px;background:var(--gold);box-shadow:0 1px 0 var(--gold-d)}
