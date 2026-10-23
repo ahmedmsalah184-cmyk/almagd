@@ -51,6 +51,7 @@
     <div class="seg" role="tablist">
       <button type="button" id="segItems" class="on" data-seg="items">الموديلات</button>
       <button type="button" id="segCart" data-seg="cart">الفاتورة <span id="cartCount" class="badge">0</span></button>
+      <button type="button" id="segHist" data-seg="hist">السجل</button>
     </div>
 
     <div id="invItems" class="inv-pane">
@@ -63,12 +64,25 @@
     <div id="invCart" class="inv-pane" hidden>
       <div id="cartList" class="ilist"></div>
       <div id="cartTotal" class="total" hidden></div>
+      <div id="closeBox" class="card" hidden>
+        <h2>قفل الفاتورة</h2>
+        <label for="custName">اسم العميل</label>
+        <input id="custName" type="search" class="rtl-in" autocomplete="off" enterkeyhint="done" placeholder="اكتب اسم العميل">
+        <p id="closeNo" class="muted"></p>
+        <div class="btns">
+          <button id="confirmClose" class="btn">تأكيد وإنشاء PDF</button>
+          <button id="cancelClose" class="btn ghost">رجوع</button>
+        </div>
+      </div>
       <div id="cartBtns" class="btns" hidden>
-        <button id="shareWa" class="btn">إرسال واتساب</button>
-        <button id="copyInv" class="btn ghost">نسخ الفاتورة</button>
-        <button id="clearInv" class="btn danger">مسح الفاتورة</button>
+        <button id="closeInv" class="btn">قفل الفاتورة</button>
+        <button id="copyInv" class="btn ghost">نسخ</button>
+        <button id="clearInv" class="btn danger">مسح</button>
       </div>
       <p id="clearInvAsk" class="muted" hidden>اضغط "مسح الفاتورة" مرة تانية للتأكيد.</p>
+    </div>
+    <div id="invHist" class="inv-pane" hidden>
+      <div id="histList" class="ilist"></div>
     </div>
   </section>
 
@@ -101,8 +115,9 @@
       <p id="clearAsk" class="muted" hidden>اضغط "مسح البيانات" مرة تانية للتأكيد.</p>
     </div>
 
-    <div id="msg" class="toast" role="status" hidden></div>
   </section>
+
+  <div id="msg" class="toast" role="status" hidden></div>
 </main>
 
 <nav class="tabs">
