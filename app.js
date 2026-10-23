@@ -109,11 +109,15 @@
     return esc(raw.slice(0, k)) + "<mark>" + esc(raw.slice(k, k + q.length)) + "</mark>" + esc(raw.slice(k + q.length));
   }
   function card(r, q) {
-    return '<div class="hit"><div class="c-f">' + hlText(r.f || "-", q) + '</div>' +
-      '<div class="c-m">' + hlText(r.m, q) + '</div>' +
-      '<div class="c-p">' + fmtPrice(r.p) + "</div></div>";
+    var k = ikey(r), n = pend[k] || 1, inC = cartQty(k);
+    return '<div class="im m3d" data-k="' + esc(k) + '"><div class="im-top"><div class="im-info"><div class="im-f">' + hlText(r.f || "-", q) + '</div><div class="im-m">' + hlText(r.m, q) + '</div></div>' +
+      '<div class="im-p">' + fmtPrice(r.p) + '</div></div>' +
+      '<div class="im-act"><div class="qty"><button type="button" data-a="plus" aria-label="زيادة">+</button>' +
+      '<input type="number" inputmode="numeric" min="1" value="' + n + '" aria-label="الكمية">' +
+      '<button type="button" data-a="minus" aria-label="نقص">−</button></div>' +
+      '<button type="button" class="btn" data-a="add">أضف للفاتورة</button></div>' +
+      '<div class="in-cart"' + (inC ? "" : " hidden") + '>في الفاتورة: ' + inC + '</div></div>';
   }
-  var HEAD = '<div class="hit head"><div>المصنع</div><div>رقم الموديل</div><div>السعر</div></div>';
   function renderSearch() {
     var out = $("results"), info = $("info");
     if (!rows.length) {
@@ -126,7 +130,7 @@
     if (!q) {
       info.textContent = fac ? "عدد موديلات المصنع: " + pool.length : "اختار مصنع أو اكتب رقم الموديل أو اسم المصنع";
       if (!fac) { out.innerHTML = ""; return; }
-      out.innerHTML = HEAD + pool.slice(0, 60).map(function (r) { return card(r, ""); }).join("") +
+      out.innerHTML = pool.slice(0, 60).map(function (r) { return card(r, ""); }).join("") +
         (pool.length > 60 ? '<div class="info">أول 60 موديل. اكتب رقم الموديل لتضييق البحث.</div>' : "");
       return;
     }
@@ -134,7 +138,7 @@
     var list = exact.length ? exact : pool.filter(function (r) { return norm(r.m).indexOf(q) > -1 || norm(r.f).indexOf(q) > -1; });
     if (!list.length) { info.textContent = ""; out.innerHTML = '<div class="empty bad">غير موجود</div>'; return; }
     info.textContent = exact.length ? "" : "نتائج (" + list.length + ")";
-    out.innerHTML = HEAD + list.slice(0, 50).map(function (r) { return card(r, q); }).join("");
+    out.innerHTML = list.slice(0, 50).map(function (r) { return card(r, q); }).join("");
   }
 
   /* ---------- صفحة الإعدادات ---------- */
@@ -180,6 +184,7 @@
       $("view-search").hidden = b.dataset.view !== "search";
       $("view-invoice").hidden = b.dataset.view !== "invoice";
       $("view-settings").hidden = b.dataset.view !== "settings";
+      if (b.dataset.view === "search") renderSearch(); else if (b.dataset.view === "invoice") renderCart();
       window.scrollTo(0, 0);
     });
   });
@@ -190,12 +195,31 @@
   });
   document.addEventListener("click", function (e) { if (!$("combo").contains(e.target)) closeCombo(); });
   $("q").addEventListener("input", renderSearch);
+  $("results").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-a]"); if (!b) return;
+    var a = b.getAttribute("data-a"), box = b.closest(".im"), k = box.getAttribute("data-k"), inp = box.querySelector("input");
+    var n = clampQ(inp.value);
+    if (a === "plus") n++; else if (a === "minus") n = Math.max(1, n - 1);
+    if (a === "plus" || a === "minus") { inp.value = n; pend[k] = n; return; }
+    if (a === "add") {
+      var r = findRow(k); if (!r) return;
+      var hit = null; cart.forEach(function (c) { if (ikey(c) === k) hit = c; });
+      if (hit) { hit.q += n; hit.p = r.p; } else cart.push({ f: r.f, m: r.m, p: r.p, q: n });
+      saveInv(); delete pend[k]; inp.value = 1;
+      var ic = box.querySelector(".in-cart"); ic.textContent = "في الفاتورة: " + cartQty(k); ic.hidden = false;
+      updBadges(); toast("اتضاف للفاتورة: " + r.m + " × " + n);
+    }
+  });
+  $("results").addEventListener("input", function (e) {
+    if (e.target.tagName !== "INPUT") return;
+    var k = e.target.closest(".im").getAttribute("data-k"), v = parseInt(e.target.value, 10);
+    if (!isNaN(v) && v > 0) pend[k] = v;
+  });
 
   /* ---------- الفواتير ---------- */
   var INV = "majd-invoice-v1";
   var cart = [];            // [{f,m,p,q}]
   var pend = {};            // الكمية المختارة قبل الإضافة لكل موديل
-  var invFac = "", invLimit = 40;
   function ikey(r) { return norm(r.f) + "|" + norm(r.m); }
   function loadInv() { try { cart = JSON.parse(localStorage.getItem(INV) || "[]"); } catch (e) { cart = []; } if (!Array.isArray(cart)) cart = []; }
   function saveInv() { try { localStorage.setItem(INV, JSON.stringify(cart)); } catch (e) {} }
@@ -204,43 +228,16 @@
   function cartQty(k) { for (var i = 0; i < cart.length; i++) if (ikey(cart[i]) === k) return cart[i].q; return 0; }
   function clampQ(v) { v = parseInt(v, 10); return isNaN(v) || v < 1 ? 1 : Math.min(v, 99999); }
 
-  function invPool() {
-    var q = norm($("iq").value);
-    var pool = invFac ? rows.filter(function (r) { return (r.f || "بدون مصنع") === invFac; }) : rows;
-    if (q) pool = pool.filter(function (r) { return norm(r.m).indexOf(q) > -1 || norm(r.f).indexOf(q) > -1; });
-    return { pool: pool, q: q };
-  }
-  function renderChips() {
-    var h = '<button type="button" class="chip' + (invFac ? "" : " on") + '" data-f="">الكل</button>';
-    h += facList.map(function (f) { return '<button type="button" class="chip' + (f === invFac ? " on" : "") + '" data-f="' + esc(f) + '">' + esc(f) + "</button>"; }).join("");
-    $("chips").innerHTML = h;
-    var on = $("chips").querySelector(".on"); if (on && on.scrollIntoView) on.scrollIntoView({ inline: "center", block: "nearest" });
-  }
-  function renderInvItems() {
-    var box = $("ilist"), info = $("iinfo");
-    if (!rows.length) { info.textContent = ""; box.innerHTML = '<div class="empty">لا توجد بيانات. افتح صفحة الإعدادات وحدّث من ملف إكسيل.</div>'; return; }
-    var r = invPool(), pool = r.pool, q = r.q;
-    if (!pool.length) { info.textContent = ""; box.innerHTML = '<div class="empty bad">غير موجود</div>'; return; }
-    info.textContent = "عدد الموديلات: " + pool.length;
-    var show = pool.slice(0, invLimit);
-    box.innerHTML = show.map(function (x) {
-      var k = ikey(x), n = pend[k] || 1, inC = cartQty(k);
-      return '<div class="im" data-k="' + esc(k) + '">' +
-        '<div class="im-top"><div class="im-info"><div class="im-f">' + hlText(x.f || "-", q) + '</div><div class="im-m">' + hlText(x.m, q) + '</div></div>' +
-        '<div class="im-p">' + fmtPrice(x.p) + '</div></div>' +
-        '<div class="im-act"><div class="qty"><button type="button" data-a="plus" aria-label="زيادة">+</button>' +
-        '<input type="number" inputmode="numeric" min="1" value="' + n + '" aria-label="الكمية">' +
-        '<button type="button" data-a="minus" aria-label="نقص">−</button></div>' +
-        '<button type="button" class="btn" data-a="add">أضف للفاتورة</button></div>' +
-        '<div class="in-cart"' + (inC ? "" : " hidden") + '>في الفاتورة: ' + inC + '</div></div>';
-    }).join("") + (pool.length > invLimit ? '<button type="button" class="btn ghost more" data-a="more">عرض المزيد (' + (pool.length - invLimit) + ')</button>' : "");
-  }
   function findRow(k) { for (var i = 0; i < rows.length; i++) if (ikey(rows[i]) === k) return rows[i]; return null; }
 
+  function updBadges() {
+    $("cartCount").textContent = cart.length;
+    $("navCount").textContent = cart.length; $("navCount").hidden = !cart.length;
+  }
   function renderCart() {
     var box = $("cartList"), tot = 0, cnt = 0;
     cart.forEach(function (c) { tot += num(c.p) * c.q; cnt += c.q; });
-    $("cartCount").textContent = cart.length;
+    updBadges();
     var has = cart.length > 0;
     $("cartTotal").hidden = !has; $("cartBtns").hidden = !has;
     if (!has) { box.innerHTML = '<div class="empty">الفاتورة فاضية. أضف موديلات من تبويب "الموديلات".</div>'; return; }
@@ -256,7 +253,7 @@
     }).join("");
     $("cartTotal").innerHTML = "<span>الإجمالي (" + cnt + " قطعة)</span><span>" + fmtN(tot) + "</span>";
   }
-  function invRefresh() { renderChips(); renderInvItems(); renderCart(); }
+  function invRefresh() { renderCart(); }
   function invText() {
     var t = "فاتورة - مكتب المجد\n", tot = 0;
     cart.forEach(function (c, i) {
@@ -266,44 +263,15 @@
     return t + "الإجمالي: " + fmtN(tot);
   }
   function setSeg(s) {
-    $("segItems").classList.toggle("on", s === "items"); $("segCart").classList.toggle("on", s === "cart");
+    $("segCart").classList.toggle("on", s === "cart");
     $("segHist").classList.toggle("on", s === "hist");
-    $("invItems").hidden = s !== "items"; $("invCart").hidden = s !== "cart"; $("invHist").hidden = s !== "hist";
+    $("invCart").hidden = s !== "cart"; $("invHist").hidden = s !== "hist";
     if (s !== "cart") $("closeBox").hidden = true;
     window.scrollTo(0, 0);
   }
 
-  $("segItems").addEventListener("click", function () { setSeg("items"); });
   $("segCart").addEventListener("click", function () { setSeg("cart"); renderCart(); });
   $("segHist").addEventListener("click", function () { setSeg("hist"); renderHist(); });
-  $("iq").addEventListener("input", function () { invLimit = 40; renderInvItems(); });
-  $("chips").addEventListener("click", function (e) {
-    var b = e.target.closest(".chip"); if (!b) return;
-    invFac = b.getAttribute("data-f"); invLimit = 40; renderChips(); renderInvItems();
-  });
-  $("ilist").addEventListener("click", function (e) {
-    var b = e.target.closest("[data-a]"); if (!b) return;
-    var a = b.getAttribute("data-a");
-    if (a === "more") { invLimit += 40; renderInvItems(); return; }
-    var card = b.closest(".im"), k = card.getAttribute("data-k"), inp = card.querySelector("input");
-    var n = clampQ(inp.value);
-    if (a === "plus") n++; else if (a === "minus") n = Math.max(1, n - 1);
-    if (a === "plus" || a === "minus") { inp.value = n; pend[k] = n; return; }
-    if (a === "add") {
-      var r = findRow(k); if (!r) return;
-      var hit = null; cart.forEach(function (c) { if (ikey(c) === k) hit = c; });
-      if (hit) { hit.q += n; hit.p = r.p; } else cart.push({ f: r.f, m: r.m, p: r.p, q: n });
-      saveInv(); delete pend[k]; inp.value = 1;
-      var ic = card.querySelector(".in-cart"); ic.textContent = "في الفاتورة: " + cartQty(k); ic.hidden = false;
-      $("cartCount").textContent = cart.length;
-      toast("اتضاف: " + r.m + " × " + n);
-    }
-  });
-  $("ilist").addEventListener("input", function (e) {
-    if (e.target.tagName !== "INPUT") return;
-    var k = e.target.closest(".im").getAttribute("data-k"), v = parseInt(e.target.value, 10);
-    if (!isNaN(v) && v > 0) pend[k] = v;
-  });
   $("cartList").addEventListener("click", function (e) {
     var b = e.target.closest("[data-a]"); if (!b) return;
     var card = b.closest(".im"), i = +card.getAttribute("data-i"), c = cart[i]; if (!c) return;
@@ -311,12 +279,12 @@
     if (a === "cplus") c.q = Math.min(99999, c.q + 1);
     else if (a === "cminus") c.q = Math.max(1, c.q - 1);
     else if (a === "rm") cart.splice(i, 1);
-    saveInv(); renderCart(); renderInvItems();
+    saveInv(); renderCart();
   });
   $("cartList").addEventListener("change", function (e) {
     if (e.target.tagName !== "INPUT") return;
     var c = cart[+e.target.closest(".im").getAttribute("data-i")]; if (!c) return;
-    c.q = clampQ(e.target.value); saveInv(); renderCart(); renderInvItems();
+    c.q = clampQ(e.target.value); saveInv(); renderCart();
   });
   $("copyInv").addEventListener("click", function () {
     var t = invText();
@@ -330,10 +298,10 @@
   var invClearArmed = false;
   $("clearInv").addEventListener("click", function () {
     if (!invClearArmed) { invClearArmed = true; $("clearInvAsk").hidden = false; setTimeout(function () { invClearArmed = false; $("clearInvAsk").hidden = true; }, 5000); return; }
-    cart = []; saveInv(); invClearArmed = false; $("clearInvAsk").hidden = true; renderCart(); renderInvItems(); toast("تم مسح الفاتورة.");
+    cart = []; saveInv(); invClearArmed = false; $("clearInvAsk").hidden = true; renderCart(); toast("تم مسح الفاتورة.");
   });
 
-  /* ---------- قفل الفاتورة + PDF + السجل ---------- */
+  /* ---------- غلق الفاتورة + PDF + السجل ---------- */
   var HKEY = "majd-invoices-v1";
   var hist = [], pdfCache = {};
   function loadHist() { try { hist = JSON.parse(localStorage.getItem(HKEY) || "[]"); } catch (e) { hist = []; } if (!Array.isArray(hist)) hist = []; }
@@ -499,7 +467,7 @@
 
   function renderHist() {
     var box = $("histList");
-    if (!hist.length) { box.innerHTML = '<div class="empty">لا توجد فواتير مقفولة. اقفل فاتورة وهتظهر هنا.</div>'; return; }
+    if (!hist.length) { box.innerHTML = '<div class="empty">لا توجد فواتير مغلقة. اغلق فاتورة وهتظهر هنا.</div>'; return; }
     box.innerHTML = hist.map(function (h) {
       return '<div class="im" data-id="' + esc(h.id) + '"><div class="im-top"><div class="im-info"><div class="im-f">' + esc(h.date + "  " + h.time) + ' • ' + h.items.length + ' صنف</div>' +
         '<div class="im-no">' + esc(h.no) + '</div></div><div class="im-p">' + fmtN(h.total) + '</div></div>' +
@@ -523,6 +491,16 @@
     }
   });
 
+  $("exportInv").addEventListener("click", function () {
+    if (!cart.length) return;
+    var d = new Date(), nm = $("custName").value.trim() || "مسودة", ds = dateStr(d), items = cart.map(function (c) { return { f: c.f, m: c.m, p: c.p, q: c.q }; });
+    var inv = { id: "draft", name: nm, date: ds, time: timeStr(d), no: nm + " - " + ds, items: items, total: totals(items).total };
+    toast("جارٍ تجهيز الـ PDF…");
+    makePdf(inv).then(function (f) {
+      if (navigator.canShare && navigator.canShare({ files: [f] })) return navigator.share({ files: [f], title: inv.no }).then(function () { $("msg").hidden = true; });
+      download(f); toast("تم تحميل الـ PDF.");
+    }).catch(function (e) { if (e && e.name === "AbortError") { $("msg").hidden = true; return; } toast("تعذر إنشاء الـ PDF."); });
+  });
   $("closeInv").addEventListener("click", function () {
     if (!cart.length) return;
     $("closeBox").hidden = false; $("closeInv").parentNode.hidden = true;
@@ -547,8 +525,8 @@
     makePdf(inv).then(function (f) {
       pdfCache[inv.id] = f; hist.unshift(inv); saveHist();
       cart = []; saveInv(); $("closeBox").hidden = true;
-      renderCart(); renderInvItems(); setSeg("hist"); renderHist();
-      toast("تم قفل الفاتورة. اضغط \"مشاركة PDF\" لإرسالها.");
+      renderCart(); setSeg("hist"); renderHist();
+      toast("تم غلق الفاتورة. اضغط \"مشاركة PDF\" لإرسالها.");
     }).catch(function () { toast("تعذر إنشاء الـ PDF. الفاتورة لسه مفتوحة."); })
       .then(function () { closing = false; });
   }
