@@ -194,3 +194,6 @@ select,input[type=search]{font-size:1.15rem;font-weight:700}
 .m3d mark{background:var(--gold);color:#3a2600;border-radius:4px;padding:0 2px}
 .seg{grid-template-columns:1fr 1fr}
 .tabs .badge{margin-inline-start:4px}
+
+/* تظليل خفيف وصغير للجزء المطابق في البحث */
+mark,.hit mark,.m3d mark{background:rgba(242,183,5,.3);color:inherit;padding:0;margin:0;border-radius:0;font:inherit;box-shadow:none}

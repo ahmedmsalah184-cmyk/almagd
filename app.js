@@ -18,7 +18,13 @@
   }
 
   /* ---------- مساعدات ---------- */
-  function norm(s) { return String(s == null ? "" : s).trim().toUpperCase().replace(/\s+/g, ""); }
+  // يحوّل الأرقام العربية (٠-٩) والفارسية (۰-۹) لأرقام إنجليزية (نفس الطول عشان التظليل يفضل سليم)
+  function west(s) {
+    return String(s).replace(/[\u0660-\u0669\u06F0-\u06F9]/g, function (c) {
+      var n = c.charCodeAt(0); return String(n >= 0x06F0 ? n - 0x06F0 : n - 0x0660);
+    });
+  }
+  function norm(s) { return west(s == null ? "" : s).trim().toUpperCase().replace(/\s+/g, ""); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function fmtPrice(p) {
     var n = parseFloat(String(p).replace(/,/g, ""));
@@ -99,12 +105,12 @@
     renderCombo();
   }
   function hl(model, q) {
-    var raw = String(model), j = raw.toUpperCase().indexOf(q);
+    var raw = String(model), j = west(raw).toUpperCase().indexOf(q);
     if (!q || j < 0) return esc(raw);
     return esc(raw.slice(0, j)) + "<mark>" + esc(raw.slice(j, j + q.length)) + "</mark>" + esc(raw.slice(j + q.length));
   }
   function hlText(t, q) {
-    var raw = String(t), k = q ? raw.toUpperCase().indexOf(q) : -1;
+    var raw = String(t), k = q ? west(raw).toUpperCase().indexOf(q) : -1;
     if (k < 0) return esc(raw);
     return esc(raw.slice(0, k)) + "<mark>" + esc(raw.slice(k, k + q.length)) + "</mark>" + esc(raw.slice(k + q.length));
   }
