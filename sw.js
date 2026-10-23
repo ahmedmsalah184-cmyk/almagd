@@ -1,5 +1,5 @@
 // غيّر رقم النسخة عند أي تعديل في ملفات التطبيق عشان الموبايل يحدّث
-var VERSION = "majd-v5";
+var VERSION = "majd-v7";
 var FILES = ["./", "index.html", "style.css", "app.js", "manifest.webmanifest",
   "lib/xlsx.mini.min.js", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/icon-maskable-512.png", "icons/logo.png", "icons/logo-header.jpg"];
 

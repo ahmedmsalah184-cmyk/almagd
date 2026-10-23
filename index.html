@@ -30,13 +30,46 @@
   <!-- الصفحة الرئيسية: البحث -->
   <section id="view-search" class="view">
     <label for="factory">المصنع</label>
-    <select id="factory"></select>
+    <div class="combo" id="combo">
+      <input type="hidden" id="factory" value="">
+      <button type="button" id="comboBtn" class="combo-btn" aria-haspopup="listbox" aria-expanded="false"><span id="comboLabel">كل المصانع</span></button>
+      <div class="combo-panel" id="comboPanel" hidden>
+        <input id="comboQ" type="search" autocomplete="off" enterkeyhint="search" placeholder="ابحث عن مصنع…">
+        <ul id="comboList" role="listbox"></ul>
+      </div>
+    </div>
 
-    <label for="q">رقم الموديل</label>
-    <input id="q" type="search" autocomplete="off" autocapitalize="characters" enterkeyhint="search" placeholder="اكتب رقم الموديل">
+    <label for="q">بحث برقم الموديل أو اسم المصنع</label>
+    <input id="q" type="search" autocomplete="off" autocapitalize="characters" enterkeyhint="search" placeholder="رقم الموديل أو اسم المصنع">
 
     <div id="info" class="info"></div>
     <div id="results" aria-live="polite"></div>
+  </section>
+
+  <!-- صفحة الفواتير -->
+  <section id="view-invoice" class="view" hidden>
+    <div class="seg" role="tablist">
+      <button type="button" id="segItems" class="on" data-seg="items">الموديلات</button>
+      <button type="button" id="segCart" data-seg="cart">الفاتورة <span id="cartCount" class="badge">0</span></button>
+    </div>
+
+    <div id="invItems" class="inv-pane">
+      <input id="iq" type="search" autocomplete="off" autocapitalize="characters" enterkeyhint="search" placeholder="ابحث برقم الموديل أو اسم المصنع">
+      <div id="chips" class="chips" role="tablist" aria-label="المصانع"></div>
+      <div id="iinfo" class="info"></div>
+      <div id="ilist" class="ilist"></div>
+    </div>
+
+    <div id="invCart" class="inv-pane" hidden>
+      <div id="cartList" class="ilist"></div>
+      <div id="cartTotal" class="total" hidden></div>
+      <div id="cartBtns" class="btns" hidden>
+        <button id="shareWa" class="btn">إرسال واتساب</button>
+        <button id="copyInv" class="btn ghost">نسخ الفاتورة</button>
+        <button id="clearInv" class="btn danger">مسح الفاتورة</button>
+      </div>
+      <p id="clearInvAsk" class="muted" hidden>اضغط "مسح الفاتورة" مرة تانية للتأكيد.</p>
+    </div>
   </section>
 
   <!-- صفحة الإعدادات -->
@@ -74,6 +107,7 @@
 
 <nav class="tabs">
   <button data-view="search" class="on">بحث</button>
+  <button data-view="invoice">الفواتير</button>
   <button data-view="settings">الإعدادات</button>
 </nav>
 
